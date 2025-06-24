@@ -10,6 +10,12 @@
     href="https://cdn.jsdelivr.net/npm/bootstrapicons@1.11.1/font/bootstrap-icons.css">
 </head>
 <body> 
+    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ route('books.index') }}">Books</a>
+            <a class="navbar-brand" href="{{ route('authors.index') }}">Authors</a>
+        </div>
+    </nav>
 
     <div class="container">
         <h3 class="mb-3 mx-auto">Libretto CRUD</h3>

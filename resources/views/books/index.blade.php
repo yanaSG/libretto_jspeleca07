@@ -8,7 +8,10 @@
         </div>
         @endsession
         <div class="card">
-            <div class="card-header">Book List</div>
+            <div class="card-header d-flex gap-2">
+                <p>Book List</p>
+                <a href="{{ route('authors.index') }}" class="btn btn-success btn-sm my-2"><i class="bi bi-plus-circle"></i> Author List</a>
+            </div>
             <div class="card-body">
                 <a href="{{ route('books.create') }}" class="btn btn-success btn-sm my-2"><i class="bi bi-plus-circle"></i> Add New
                     Book</a>
