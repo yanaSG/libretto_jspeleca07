@@ -11,7 +11,7 @@
 
         <div class="card">
             <div class="card-header">
-                <div class="float-start">Edit Book</div>
+                <div class="float-start">Edit Review</div>
                 <div class="float-end">
                     <a href="{{ route('books.index') }}" class="btn btn-primary btn-sm">&larr; Back</a>
                 </div>
@@ -23,7 +23,7 @@
                     @method('PUT')
 
                     <div class="mb-3 row">
-                        <label for="title" class="col-md-4 col-form-label text-md-end text-start">Title</label>
+                        <label for="title" class="col-md-4 col-form-label text-md-end text-start">Book Title</label>
                         <div class="col-md-6">
                             <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title" value="{{ $book->title }}">
                             @error('title')

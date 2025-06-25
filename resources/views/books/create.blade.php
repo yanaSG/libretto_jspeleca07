@@ -28,7 +28,13 @@
                     <div class="mb-3 row">
                         <label for="author" class="col-md-4 col-formlabel text-md-end text-start">Author</label>
                         <div class="col-md-6">
-                            <input type="text" class="form-control @error('author') is-invalid @enderror" id="author" name="author" value="{{ old('author') }}">
+                            <select type="text" class="form-control @error('author') is-invalid @enderror" id="author" name="author" value="{{ old('author') }}">
+                                @foreach ($authors as $author)
+                                <option value="{{ $loop->iteration }}">
+                                    {{ $author->name }}
+                                </option>
+                                @endforeach
+                            </select>
                             @error('author')
                             <span class="text-danger">{{ $message }}</span>
                             @enderror

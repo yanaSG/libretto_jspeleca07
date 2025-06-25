@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
 use Illuminate\View\View;
@@ -29,7 +30,8 @@ class BookController extends Controller
      */
     public function create(): View
     {
-        return view('books.create');
+        $authors = Author::latest()->paginate();
+        return view('books.create', compact('authors'));
     }
 
     /**
@@ -38,7 +40,7 @@ class BookController extends Controller
     public function store(StoreBookRequest $request): RedirectResponse
     {
         $validated = $request->validated();
-
+        dd($request->all);
         Book::create($validated);
         return redirect()->route('books.index')->withSuccess('New book is added successfully.');
     }
