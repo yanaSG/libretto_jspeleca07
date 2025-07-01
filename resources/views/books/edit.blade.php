@@ -11,14 +11,14 @@
 
         <div class="card">
             <div class="card-header">
-                <div class="float-start">Edit Review</div>
+                <div class="float-start">Edit Book</div>
                 <div class="float-end">
                     <a href="{{ route('books.index') }}" class="btn btn-primary btn-sm">&larr; Back</a>
                 </div>
             </div>
 
             <div class="card-body">
-                <form action="{{ route('books.update', $book->id) }}" method="post" enctype="multipart/form-data">
+                <form action="{{ route('books.update', $book) }}" method="post" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
@@ -33,16 +33,16 @@
                     </div>
 
                     <div class="mb-3 row">
-                        <label for="author" class="col-md-4 col-form-label text-md-end text-start">Author</label>
+                        <label for="author_id" class="col-md-4 col-form-label text-md-end text-start">Author</label>
                         <div class="col-md-6">
-                            <select type="text" class="form-control @error('author') is-invalid @enderror" id="author" name="author" value="{{ $book->author->id }}">
+                            <select type="text" class="form-control @error('author_id') is-invalid @enderror" id="author_id" name="author_id">
                                 @foreach ($authors as $author)
-                                <option value="{{ $loop->iteration }}" @selected(old('author_id', $book->author->id) == $author->id)>
+                                <option value="{{ $author->id }}" @selected(old('author_id', $book->author->id) == $author->id)>
                                     {{ $author->name }}
                                 </option>
                                 @endforeach
                             </select>
-                            @error('author')
+                            @error('author_id')
                             <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>

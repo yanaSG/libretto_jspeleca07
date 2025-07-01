@@ -17,16 +17,16 @@
                     enctype="multipart/form-data">
                     @csrf
                     <div class="mb-3 row">
-                        <label for="title" class="col-md-4 col-formlabel text-md-end text-start">Book Title</label>
+                        <label for="book_id" class="col-md-4 col-formlabel text-md-end text-start">Book Title</label>
                         <div class="col-md-6">
-                            <select type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title" value="{{ old('title') }}">
+                            <select type="text" class="form-control @error('book_id') is-invalid @enderror" id="book_id" name="book_id" value="{{ old('book_id') }}">
                                 @foreach ($books as $book)
-                                <option value="{{ $loop->iteration }}">
+                                <option value="{{ $book->id }}">
                                     {{ $book->title }}
                                 </option>
                                 @endforeach
                             </select>
-                            @error('title')
+                            @error('book_id')
                             <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
