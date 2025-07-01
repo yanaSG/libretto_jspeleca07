@@ -26,16 +26,16 @@
                         </div>
                     </div>
                     <div class="mb-3 row">
-                        <label for="author" class="col-md-4 col-formlabel text-md-end text-start">Author</label>
+                        <label for="author_id" class="col-md-4 col-formlabel text-md-end text-start">Author</label>
                         <div class="col-md-6">
-                            <select type="text" class="form-control @error('author') is-invalid @enderror" id="author" name="author" value="{{ old('author') }}">
+                            <select type="text" class="form-control @error('author_id') is-invalid @enderror" id="author_id" name="author_id" value="{{ old('author_id') }}">
                                 @foreach ($authors as $author)
                                 <option value="{{ $loop->iteration }}">
                                     {{ $author->name }}
                                 </option>
                                 @endforeach
                             </select>
-                            @error('author')
+                            @error('author_id')
                             <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
