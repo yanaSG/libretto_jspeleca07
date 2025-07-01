@@ -30,9 +30,9 @@
         <h3 class="mb-3 mx-auto">Libretto CRUD</h3>
 
         {{-- Flash Messages --}}
-        @if (session('success'))
+        <!-- @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
+        @endif -->
 
         @yield('content')
 

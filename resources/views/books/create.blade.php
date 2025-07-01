@@ -30,7 +30,7 @@
                         <div class="col-md-6">
                             <select type="text" class="form-control @error('author_id') is-invalid @enderror" id="author_id" name="author_id" value="{{ old('author_id') }}">
                                 @foreach ($authors as $author)
-                                <option value="{{ $loop->iteration }}">
+                                <option value="{{ $author->id }}">
                                     {{ $author->name }}
                                 </option>
                                 @endforeach

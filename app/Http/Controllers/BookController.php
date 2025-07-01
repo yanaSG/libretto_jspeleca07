@@ -40,7 +40,6 @@ class BookController extends Controller
     public function store(StoreBookRequest $request): RedirectResponse
     {
         $validated = $request->validated();
-        dd($request->all);
         Book::create($validated);
         return redirect()->route('books.index')->withSuccess('New book is added successfully.');
     }
@@ -68,9 +67,8 @@ class BookController extends Controller
     public function update(UpdateBookRequest $request, Book $book): RedirectResponse
     {
         $validated = $request->validated();
-
         $book->update($validated);
-        return redirect()->back()->withSuccess('Book is updated successfully.');
+        return redirect()->route('books.index')->withSuccess('Book is updated successfully.');
     }
 
     /**
