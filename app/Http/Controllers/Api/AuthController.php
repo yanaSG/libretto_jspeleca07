@@ -5,13 +5,15 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
     //
-    public function login(Request $request)
+    public function login(Request $request): RedirectResponse | JsonResponse
     {
         $request->validate([
             'email'    => 'required|email',
@@ -28,14 +30,20 @@ class AuthController extends Controller
         $user = Auth::user();
         $token = $user->createToken('api_token', ['*'], now()->addDay())->plainTextToken;
 
-        return response()->json([
-            'message' => 'Login successful',
-            'user'    => $user,
-            'token'   => $token,
-        ]);
+        session(['api-token' => $token]);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Login successful',
+                'user'    => $user,
+                'token'   => $token,
+            ]);
+        }
+
+        return redirect('/books');
     }
 
-    public function register(Request $request)
+    public function register(Request $request): RedirectResponse | JsonResponse
     {
         $request->validate([
             'name'     => 'required|string|max:255',
@@ -53,12 +61,32 @@ class AuthController extends Controller
             'api_token',
             ['*'],
             now()->addDay()
-            )->plainTextToken;
+        )->plainTextToken;
 
-        return response()->json([
-            'message' => 'User registered successfully',
-            'user'    => $user,
-            'token'   => $token,
-        ], 201);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'User registered successfully',
+                'user'    => $user,
+                'token'   => $token,
+            ], 201);
+        }
+
+        return redirect('/login');
+    }
+
+    public function logout(Request $request): RedirectResponse | JsonResponse
+    {
+        Auth::logout();
+        $request->user()->currentAccessToken()->delete();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Logged out successfully'
+            ], 200);
+        }
+
+        return redirect('/login');
     }
 }

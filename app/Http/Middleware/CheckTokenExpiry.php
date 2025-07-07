@@ -19,7 +19,7 @@ class CheckTokenExpiry
         $user = Auth::user();
 
         if (!$user) {
-            return response()->json(['message' => 'Unauthenticated'], 401);
+            return response()->json(['message' => 'Token Expired'], 401);
         }
 
         return $next($request);

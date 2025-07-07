@@ -3,20 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\View\View;
 
 class AuthController extends Controller
 {
     //
-    public function login(Request $request)
+    public function login(): View
     {
         return view('auth.login');
     }
 
-    public function register(Request $request)
+    public function register(): View
     {
         return view('auth.register');
     }

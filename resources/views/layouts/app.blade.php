@@ -20,8 +20,13 @@
                 <a class="navbar-brand" href="{{ route('genres.index') }}">Genres</a>
                 <a class="navbar-brand" href="{{ route('reviews.index') }}">Reviews</a>
             </div>
-            <div>
-
+            <div class="ms-auto">
+                @auth
+                <form method="POST" action="{{ url('/api/logout') }}">
+                    @csrf
+                    <button type="submit" class="btn btn-primary btn-sm">Logout</button>
+                </form>
+                @endauth
             </div>
         </div>
     </nav>
