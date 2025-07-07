@@ -24,7 +24,7 @@ class AuthController extends Controller
             ], 401);
         }
 
-        /** @var \Illuminate\Database\Eloquent\Collection<\App\Models\User> */
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         $token = $user->createToken('api_token', ['*'], now()->addDay())->plainTextToken;
 
