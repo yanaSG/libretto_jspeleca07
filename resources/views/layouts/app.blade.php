@@ -32,6 +32,11 @@
     </nav>
 
     <div class="container">
+        @auth
+        <p>Logged in as: {{ Auth::user()->name }}</p>
+        @else
+        <p>Not authenticated</p>
+        @endauth
         <h3 class="mb-3 mx-auto">Libretto CRUD</h3>
 
         {{-- Flash Messages --}}

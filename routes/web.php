@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Api\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\BookController;
@@ -11,10 +11,21 @@ Route::get('/', function () {
     return redirect('books');
 });
 
-Route::get('/login', [AuthController::class, 'login'])->name('login');
-Route::get('/register', [AuthController::class, 'register'])->name('register');
+// Show login/register forms
+Route::get('/login', function () {
+    return view('auth.login');
+})->name('login');
 
-Route::middleware(['auth:sanctum', 'check.token.expiry'])->group(function () {
+Route::get('/register', function () {
+    return view('auth.register');
+})->name('register');
+
+// Handle form submissions
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/logout', [AuthController::class, 'logout']);
+
+Route::middleware(['auth'])->group(function () {
     Route::resource('authors', AuthorController::class);
     Route::resource('books', BookController::class);
     Route::resource('genres', GenreController::class);

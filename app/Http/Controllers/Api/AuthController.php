@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
 {
@@ -21,16 +22,24 @@ class AuthController extends Controller
         ]);
 
         if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json([
-                'message' => 'Invalid credentials',
-            ], 401);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Invalid credentials',
+                ], 401);
+            }
+
+            return redirect()->back()->withErrors(['email' => 'Invalid credentials'])->withInput();
         }
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
         $token = $user->createToken('api_token', ['*'], now()->addDay())->plainTextToken;
 
+        // Store token in session for debugging
         session(['api-token' => $token]);
+
+        // Force session regeneration for security
+        $request->session()->regenerate();
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -74,17 +83,33 @@ class AuthController extends Controller
         return redirect('/login');
     }
 
-    public function logout(Request $request): RedirectResponse | JsonResponse
+    public function logout(Request $request): RedirectResponse|JsonResponse
     {
-        Auth::logout();
-        $request->user()->currentAccessToken()->delete();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        $user = $request->user();
 
+        // Handle API token logout (Sanctum)
+        if ($user && $user->currentAccessToken() instanceof PersonalAccessToken) {
+            try {
+                $user->currentAccessToken()->delete();
+            } catch (\Exception $e) {
+                report($e);
+            }
+        }
+
+        // Handle web session logout
+        $isWebAuth = Auth::getDefaultDriver() === 'web' || !$request->expectsJson();
+
+        if ($isWebAuth && $user) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
+
+        // Handle response
         if ($request->expectsJson()) {
             return response()->json([
                 'message' => 'Logged out successfully'
-            ], 200);
+            ]);
         }
 
         return redirect('/login');
