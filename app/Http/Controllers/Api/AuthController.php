@@ -13,7 +13,6 @@ use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
 {
-    //
     public function login(Request $request): RedirectResponse | JsonResponse
     {
         $request->validate([
@@ -33,15 +32,11 @@ class AuthController extends Controller
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        $token = $user->createToken('api_token', ['*'], now()->addDay())->plainTextToken;
 
-        // Store token in session for debugging
-        session(['api-token' => $token]);
-
-        // Force session regeneration for security
-        $request->session()->regenerate();
-
+        // For API requests, create and return token
         if ($request->expectsJson()) {
+            $token = $user->createToken('api_token', ['*'], now()->addDay())->plainTextToken;
+
             return response()->json([
                 'message' => 'Login successful',
                 'user'    => $user,
@@ -49,7 +44,10 @@ class AuthController extends Controller
             ]);
         }
 
-        return redirect('/books');
+        // For web requests, handle session
+        $request->session()->regenerate();
+
+        return redirect()->intended('/books');
     }
 
     public function register(Request $request): RedirectResponse | JsonResponse
@@ -66,13 +64,10 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $token = $user->createToken(
-            'api_token',
-            ['*'],
-            now()->addDay()
-        )->plainTextToken;
-
+        // For API requests, create and return token
         if ($request->expectsJson()) {
+            $token = $user->createToken('api_token', ['*'], now()->addDay())->plainTextToken;
+
             return response()->json([
                 'message' => 'User registered successfully',
                 'user'    => $user,
@@ -80,29 +75,42 @@ class AuthController extends Controller
             ], 201);
         }
 
-        return redirect('/login');
+        // For web requests, authenticate and redirect
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return redirect('/books');
     }
 
     public function logout(Request $request): RedirectResponse|JsonResponse
     {
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
 
-        // Handle API token logout (Sanctum)
-        if ($user && $user->currentAccessToken() instanceof PersonalAccessToken) {
-            try {
-                $user->currentAccessToken()->delete();
-            } catch (\Exception $e) {
-                report($e);
+        try {
+            // Handle API token logout (Sanctum)
+            if ($user && method_exists($user, 'currentAccessToken')) {
+                $token = $user->currentAccessToken();
+                if ($token instanceof PersonalAccessToken) {
+                    $token->delete();
+                }
             }
-        }
 
-        // Handle web session logout
-        $isWebAuth = Auth::getDefaultDriver() === 'web' || !$request->expectsJson();
-
-        if ($isWebAuth && $user) {
+            // Handle web session logout
             Auth::guard('web')->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
+        } catch (\Exception $e) {
+            report($e);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Error during logout',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+
+            return redirect('/login')->withErrors(['logout' => 'Error during logout']);
         }
 
         // Handle response
