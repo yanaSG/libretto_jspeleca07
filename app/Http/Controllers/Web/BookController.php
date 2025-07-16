@@ -1,17 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Web;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\Author;
+use App\Models\Genre;
 
 class BookController extends Controller
 {
@@ -31,7 +30,8 @@ class BookController extends Controller
     public function create(): View
     {
         $authors = Author::latest()->paginate();
-        return view('books.create', compact('authors'));
+        $genres = Genre::latest()->paginate();
+        return view('books.create', compact('authors', 'genres'));
     }
 
     /**
@@ -40,7 +40,14 @@ class BookController extends Controller
     public function store(StoreBookRequest $request): RedirectResponse
     {
         $validated = $request->validated();
-        Book::create($validated);
+
+        $genreIds = $validated['genre_id'] ?? [];
+        $book = Book::create($validated);
+
+        if (!empty($genreIds)) {
+            $book->genres()->attach($genreIds);
+        }
+
         return redirect()->route('books.index')->withSuccess('New book is added successfully.');
     }
 
@@ -58,7 +65,8 @@ class BookController extends Controller
     public function edit(Book $book): View
     {
         $authors = Author::latest()->paginate();
-        return view('books.edit', compact('book', 'authors'));
+        $genres = Genre::latest()->paginate();
+        return view('books.edit', compact('book', 'authors', 'genres'));
     }
 
     /**

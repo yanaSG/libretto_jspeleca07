@@ -1,19 +1,5 @@
 @extends('layouts.app')
 @section('content')
-<!-- Debug Information -->
-<div class="alert alert-info">
-    @auth
-        <strong>Authenticated:</strong> {{ Auth::user()->name }} (ID: {{ Auth::id() }})
-        <br><strong>Session ID:</strong> {{ session()->getId() }}
-        @if(session('api-token'))
-            <br><strong>Token in session:</strong> Yes
-        @else
-            <br><strong>Token in session:</strong> No
-        @endif
-    @else
-        <strong>Not authenticated</strong>
-    @endauth
-</div>
 <div class="row justify-content-center mt-3">
     <div class="col-md-12">
         @session('success')
@@ -34,6 +20,8 @@
                             <th scope="col">S#</th>
                             <th scope="col">Title</th>
                             <th scope="col">Author</th>
+                            <th scope="col">Genres</th>
+                            <th scope="col">No. of Reviews</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -42,6 +30,12 @@
                             <th scope="row">{{ $loop->iteration }}</th>
                             <td>{{ $book->title }}</td>
                             <td>{{ $book->author->name }}</td>
+                            <td>
+                                @foreach ($book->genres as $genre)
+                                <span class="badge bg-secondary">{{ $genre->name }}</span>
+                                @endforeach
+                            </td>
+                            <td>{{ $book->reviews->count() }}</td>
                             <td>
                                 <form action="{{ route('books.destroy', $book->id) }}" method="post">
                                     @csrf

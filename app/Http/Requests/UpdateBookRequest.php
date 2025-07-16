@@ -24,6 +24,8 @@ class UpdateBookRequest extends FormRequest
         return [
             'title' => 'required|string|max:250',
             'author_id' => 'required|integer|min:1',
+            'genre_id' => 'array',
+            'genre_id.*' => 'exists:genres,id',
         ];
     }
 }

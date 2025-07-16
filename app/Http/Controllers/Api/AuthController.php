@@ -15,42 +15,38 @@ class AuthController extends Controller
 {
     public function login(Request $request): RedirectResponse | JsonResponse
     {
-        $request->validate([
+        $credentials = $request->validate([
             'email'    => 'required|email',
             'password' => 'required',
         ]);
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'message' => 'Invalid credentials',
-                ], 401);
-            }
-
-            return redirect()->back()->withErrors(['email' => 'Invalid credentials'])->withInput();
+        if (!Auth::attempt($credentials)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
+        // /** @var \App\Models\User $user */
+        $user = $request->user();
 
-        // For API requests, create and return token
-        if ($request->expectsJson()) {
-            $token = $user->createToken('api_token', ['*'], now()->addDay())->plainTextToken;
+        $existingToken = $user->tokens()->where('name', 'api_token')->where('expires_at', '>', now())->first();
 
+        if ($existingToken) {
             return response()->json([
-                'message' => 'Login successful',
-                'user'    => $user,
-                'token'   => $token,
+                'message' => 'Token still valid',
+                'expires_at' => $existingToken->expires_at,
             ]);
         }
 
-        // For web requests, handle session
-        $request->session()->regenerate();
+        $token = $user->createToken('api_token', ['*'], now()->addDay());
+        // $token = $user->createToken('api_token', ['*'], now()->addSeconds(20));
 
-        return redirect()->intended('/books');
+        return response()->json([
+            'message' => 'Created new token successfully',
+            'token' => $token->plainTextToken,
+            'expires_at' => $token->accessToken->expires_at,
+        ]);
     }
 
-    public function register(Request $request): RedirectResponse | JsonResponse
+    public function register(Request $request): JsonResponse
     {
         $request->validate([
             'name'     => 'required|string|max:255',
@@ -64,62 +60,9 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // For API requests, create and return token
-        if ($request->expectsJson()) {
-            $token = $user->createToken('api_token', ['*'], now()->addDay())->plainTextToken;
-
-            return response()->json([
-                'message' => 'User registered successfully',
-                'user'    => $user,
-                'token'   => $token,
-            ], 201);
-        }
-
-        // For web requests, authenticate and redirect
-        Auth::login($user);
-        $request->session()->regenerate();
-
-        return redirect('/books');
-    }
-
-    public function logout(Request $request): RedirectResponse|JsonResponse
-    {
-        /** @var \App\Models\User|null $user */
-        $user = $request->user();
-
-        try {
-            // Handle API token logout (Sanctum)
-            if ($user && method_exists($user, 'currentAccessToken')) {
-                $token = $user->currentAccessToken();
-                if ($token instanceof PersonalAccessToken) {
-                    $token->delete();
-                }
-            }
-
-            // Handle web session logout
-            Auth::guard('web')->logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-        } catch (\Exception $e) {
-            report($e);
-
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'message' => 'Error during logout',
-                    'error' => $e->getMessage()
-                ], 500);
-            }
-
-            return redirect('/login')->withErrors(['logout' => 'Error during logout']);
-        }
-
-        // Handle response
-        if ($request->expectsJson()) {
-            return response()->json([
-                'message' => 'Logged out successfully'
-            ]);
-        }
-
-        return redirect('/login');
+        return response()->json([
+            'message' => 'User registered successfully',
+            'user'    => $user
+        ]);
     }
 }

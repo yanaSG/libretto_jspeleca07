@@ -16,10 +16,13 @@ class CheckTokenExpiry
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = Auth::user();
-
-        if (!$user) {
-            return response()->json(['message' => 'Token Expired'], 401);
+        if ($request->user() && $token = $request->user()->currentAccessToken()) {
+            if ($token instanceof \Laravel\Sanctum\PersonalAccessToken) {
+                if ($token->expires_at && $token->expires_at->isPast()) {
+                    $token->delete();
+                    return response()->json(['message' => 'Token expired'], 401);
+                }
+            }
         }
 
         return $next($request);

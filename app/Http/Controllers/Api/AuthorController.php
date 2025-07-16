@@ -13,6 +13,7 @@ class AuthorController extends Controller
         $authors = Author::with('books')->get();
         return response()->json($authors);
     } 
+    
     public function store(Request $request)
     {
         $validated = $request->validate([

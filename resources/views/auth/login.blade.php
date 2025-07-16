@@ -3,7 +3,7 @@
 @section('content')
 <div class="container w-50 p-5">
     <h2>Login</h2>
-    <form method="POST" action="{{ url('/api/login') }}">
+    <form method="POST" action="{{ url('/login') }}">
         @csrf
         <div class="mb-3">
             <label>Email</label>

@@ -14,15 +14,28 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4 shadow">
         <div class="container-fluid">
+            <h1 class="me-5">LIBRETTO</h1>
+            @auth
             <div class="d-flex gap-3">
-                <a class="navbar-brand" href="{{ route('books.index') }}">Books</a>
-                <a class="navbar-brand" href="{{ route('authors.index') }}">Authors</a>
-                <a class="navbar-brand" href="{{ route('genres.index') }}">Genres</a>
-                <a class="navbar-brand" href="{{ route('reviews.index') }}">Reviews</a>
+                <a class="navbar-brand {{ request()->routeIs('books.index') ? 'text-primary' : '' }}"
+                    href="{{ route('books.index') }}">
+                    Books</a>
+                <a class="navbar-brand {{ request()->routeIs('authors.index') ? 'text-primary' : '' }}"
+                    href="{{ route('authors.index') }}">
+                    Authors</a>
+                <a class="navbar-brand {{ request()->routeIs('genres.index') ? 'text-primary' : '' }}"
+                    href="{{ route('genres.index') }}">
+                    Genres</a>
+                <a class="navbar-brand {{ request()->routeIs('reviews.index') ? 'text-primary' : '' }}"
+                    href="{{ route('reviews.index') }}">
+                    Reviews</a>
             </div>
+            @else
+            <a class="navbar-brand" href="{{ url('/') }}">Home</a>
+            @endauth
             <div class="ms-auto">
                 @auth
-                <form method="POST" action="{{ url('/api/logout') }}">
+                <form method="POST" action="{{ url('/logout') }}">
                     @csrf
                     <button type="submit" class="btn btn-primary btn-sm">Logout</button>
                 </form>

@@ -49,6 +49,28 @@
                     </div>
 
                     <div class="mb-3 row">
+                        <label class="col-md-4 col-form-label text-md-end text-start">Genres</label>
+                        <div class="col-md-6">
+                            @foreach ($genres as $genre)
+                            <div class="form-check">
+                                <input class="form-check-input @error('genre_id') is-invalid @enderror"
+                                       type="checkbox"
+                                       name="genre_id[]"
+                                       value="{{ $genre->id }}"
+                                       id="genre_{{ $genre->id }}"
+                                       {{ (collect(old('genre_id', $book->genres->pluck('id')->toArray()))->contains($genre->id)) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="genre_{{ $genre->id }}">
+                                    {{ $genre->name }}
+                                </label>
+                            </div>
+                            @endforeach
+                            @error('genre_id')
+                            <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="mb-3 row">
                         <div class="col-md-6 offset-md-4">
                             <input type="submit" class="btn btn-primary" value="Update Book">
                         </div>

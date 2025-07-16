@@ -1,30 +1,22 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Web\AuthController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthorController;
-use App\Http\Controllers\BookController;
-use App\Http\Controllers\GenreController;
-use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\Web\AuthorController;
+use App\Http\Controllers\Web\BookController;
+use App\Http\Controllers\Web\GenreController;
+use App\Http\Controllers\Web\ReviewController;
 
 Route::get('/', function () {
     return redirect('books');
 });
 
-// Show login/register forms
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('login');
-
-Route::get('/register', function () {
-    return view('auth.register');
-})->name('register');
-
-// Handle form submissions
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::resource('authors', AuthorController::class);
     Route::resource('books', BookController::class);
